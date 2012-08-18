@@ -151,12 +151,13 @@ public class DrawerGarment extends FrameLayout {
 
         mScrollerHandler = new Handler();
         mScroller = new Scroller(activity, new SmoothInterpolator());
-        mSlideTarget = 0;
+        mSlideTarget = SLIDE_TARGET_WINDOW;
 
         mDecorView = (ViewGroup) activity.getWindow().getDecorView();
         mWindowTarget = (ViewGroup) mDecorView.getChildAt(0);
         mContentTarget = (ViewGroup) mDecorView.findViewById(android.R.id.content);
         mDrawerContent = (ViewGroup) LayoutInflater.from(activity).inflate(drawerLayout, null);
+        mDecorContent = mWindowTarget;
 
         /* TODO: Make this a configurable attribute */
         mDecorContent.setBackgroundColor(Color.WHITE);
