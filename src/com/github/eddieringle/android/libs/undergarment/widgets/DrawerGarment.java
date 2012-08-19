@@ -44,6 +44,8 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.Scroller;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
 /**
  * DrawerGarment <p/> An implementation of the slide-out navigation pattern.
  */
@@ -56,6 +58,8 @@ public class DrawerGarment extends FrameLayout {
     private static final int SCROLL_DURATION = 400;
 
     private static final float TOUCH_TARGET_WIDTH_DIP = 48.0f;
+
+    private boolean mAdded = false;
 
     private boolean mDrawerEnabled = true;
 
@@ -89,9 +93,15 @@ public class DrawerGarment extends FrameLayout {
 
     private ViewGroup mContentTarget;
 
+    private ViewGroup mContentTargetParent;
+
     private ViewGroup mWindowTarget;
 
+    private ViewGroup mWindowTargetParent;
+
     private ViewGroup mDecorContent;
+
+    private ViewGroup mDecorContentParent;
 
     private ViewGroup mDrawerContent;
 
@@ -122,20 +132,30 @@ public class DrawerGarment extends FrameLayout {
             removeView(mDrawerContent);
         }
         if (mDecorContent != null) {
+            /*
+             * Add the window/content (whatever it is at the time) back to its original parent.
+             */
             removeView(mDecorContent);
+            mDecorContentParent.addView(mDecorContent);
+        }
+        if (mAdded) {
+            mDecorContentParent.removeView(this);
         }
         if (mSlideTarget == SLIDE_TARGET_CONTENT) {
             mDecorContent = mContentTarget;
+            mDecorContentParent = mContentTargetParent;
         } else if (mSlideTarget == SLIDE_TARGET_WINDOW) {
             mDecorContent = mWindowTarget;
+            mDecorContentParent = mWindowTargetParent;
         } else {
-            throw new IllegalArgumentException("Slide target must be one of SLIDE_TARGET_CONTENT or SLIDE_TARGET_WINDOW.");
+            throw new IllegalArgumentException(
+                    "Slide target must be one of SLIDE_TARGET_CONTENT or SLIDE_TARGET_WINDOW.");
         }
-        final ViewGroup decorContentParent = (ViewGroup) mDecorContent.getParent();
-        decorContentParent.removeAllViews();
+        ((ViewGroup) mDecorContent.getParent()).removeView(mDecorContent);
         addView(mDrawerContent);
-        addView(mDecorContent);
-        decorContentParent.addView(this);
+        addView(mDecorContent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        mDecorContentParent.addView(this);
+        mAdded = true;
     }
 
     public DrawerGarment(Activity activity, int drawerLayout) {
@@ -151,18 +171,16 @@ public class DrawerGarment extends FrameLayout {
 
         mScrollerHandler = new Handler();
         mScroller = new Scroller(activity, new SmoothInterpolator());
+        
+        /* Default to targeting the entire window (i.e., including the Action Bar) */
         mSlideTarget = SLIDE_TARGET_WINDOW;
 
         mDecorView = (ViewGroup) activity.getWindow().getDecorView();
         mWindowTarget = (ViewGroup) mDecorView.getChildAt(0);
+        mWindowTargetParent = (ViewGroup) mWindowTarget.getParent();
         mContentTarget = (ViewGroup) mDecorView.findViewById(android.R.id.content);
+        mContentTargetParent = (ViewGroup) mContentTarget.getParent();
         mDrawerContent = (ViewGroup) LayoutInflater.from(activity).inflate(drawerLayout, null);
-        mDecorContent = mWindowTarget;
-
-        /* TODO: Make this a configurable attribute */
-        mDecorContent.setBackgroundColor(Color.WHITE);
-
-        mDrawerContent.setPadding(0, 0, mTouchTargetWidth, 0);
 
         /*
          * Mutilate the view hierarchy and re-appropriate the slide target,
@@ -170,6 +188,11 @@ public class DrawerGarment extends FrameLayout {
          * this DrawerGarment.
          */
         reconfigureViewHierarchy();
+
+        /* TODO: Make this a configurable attribute */
+        mDecorContent.setBackgroundColor(Color.WHITE);
+
+        mDrawerContent.setPadding(0, 0, mTouchTargetWidth, 0);
 
         /*
          * Set an empty onClickListener on the Decor content parent to prevent any touch events
