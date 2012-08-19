@@ -219,8 +219,13 @@ public class DrawerGarment extends FrameLayout {
         Rect windowRect = new Rect();
         mDecorView.getWindowVisibleDisplayFrame(windowRect);
 
-        mDrawerContent.layout(left, top + windowRect.top, right, bottom);
-        mDecorContent.layout(mDecorContent.getLeft(), 0, mDecorContent.getLeft() + right, bottom);
+        if (mSlideTarget == SLIDE_TARGET_WINDOW) {
+            mDrawerContent.layout(left, top + windowRect.top, right, bottom);
+        } else {
+            mDrawerContent.layout(left, mDecorContent.getTop(), right, bottom);
+        }
+        mDecorContent.layout(mDecorContent.getLeft(), mDecorContent.getTop(),
+                mDecorContent.getLeft() + right, bottom);
     }
 
     @Override
