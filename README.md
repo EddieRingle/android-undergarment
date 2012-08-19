@@ -48,13 +48,13 @@ to switch to the YouTube-style of only sliding over the content then you can set
 
     mDrawerGarment.setSlideTarget(DrawerGarment.SLIDE_TARGET_CONTENT);
 
-To open and close the drawer, call the openDrawer() and closeDrawer() methods, respectively. You
-can also toggle the drawer state with the toggleDrawer() method. The user will also be able
-to control the drawer by bezel swiping from the left side of the screen to open the drawer and
-doing the same from the right to close it. If you want to prevent this touch functionality,
-you can call setDrawerEnabled(false).  
+To open and close the drawer, call the `openDrawer()` and `closeDrawer()` methods,
+respectively. You can also toggle the drawer state with the `toggleDrawer()` method. The user
+will also be able to control the drawer by bezel swiping from the left side of the screen to
+open the drawer and doing the same from the right to close it. If you want to prevent this
+touch functionality, you can call `setDrawerEnabled(false)`.  
 
 Finally, you can provide callbacks to the drawer that will fire when the drawer is opened or
 closed, which allows you to do useful things such as modifying the state of the Action Bar.
-To set the callbacks, implement the DrawerGarment.IDrawerCallbacks interface and add them to
-the drawer with setDrawerCallbacks().
+To set the callbacks, implement the `DrawerGarment.IDrawerCallbacks` interface and add them to
+the drawer with `setDrawerCallbacks(callbacks)`.
