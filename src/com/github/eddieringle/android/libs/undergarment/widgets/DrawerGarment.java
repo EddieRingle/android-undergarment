@@ -137,6 +137,12 @@ public class DrawerGarment extends FrameLayout {
              */
             removeView(mDecorContent);
             mDecorContentParent.addView(mDecorContent);
+
+            /*
+             * Reset the window/content's OnClickListener/background color to default values as well
+             */
+            mDecorContent.setOnClickListener(null);
+            mDecorContent.setBackgroundColor(Color.TRANSPARENT);
         }
         if (mAdded) {
             mDecorContentParent.removeView(this);
@@ -156,6 +162,19 @@ public class DrawerGarment extends FrameLayout {
         addView(mDecorContent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
         mDecorContentParent.addView(this);
         mAdded = true;
+
+        /* TODO: Make this a configurable attribute */
+        mDecorContent.setBackgroundColor(Color.WHITE);
+
+        /*
+         * Set an empty onClickListener on the Decor content parent to prevent any touch events
+         * from escaping and passing through to the drawer even while it's closed.
+         */
+        mDecorContent.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
     }
 
     public DrawerGarment(Activity activity, int drawerLayout) {
@@ -189,20 +208,7 @@ public class DrawerGarment extends FrameLayout {
          */
         reconfigureViewHierarchy();
 
-        /* TODO: Make this a configurable attribute */
-        mDecorContent.setBackgroundColor(Color.WHITE);
-
         mDrawerContent.setPadding(0, 0, mTouchTargetWidth, 0);
-
-        /*
-         * Set an empty onClickListener on the Decor content parent to prevent any touch events
-         * from escaping and passing through to the drawer even while it's closed.
-         */
-        mDecorContent.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            }
-        });
 
         /*
          * This currently causes lock-ups on 10" tablets (e.g., Xoom & Transformer),
