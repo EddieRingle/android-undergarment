@@ -460,7 +460,7 @@ public class DrawerGarment extends FrameLayout {
         final int widthPixels = getResources().getDisplayMetrics().widthPixels;
         mScroller
                 .startScroll(mDecorOffsetX, 0, (widthPixels - mTouchTargetWidth) - mDecorOffsetX, 0,
-                        SCROLL_DURATION);
+                        animate ? SCROLL_DURATION : 0);
 
         mScrollerHandler.postDelayed(new Runnable() {
             @Override
@@ -501,7 +501,8 @@ public class DrawerGarment extends FrameLayout {
         mDrawerMoving = true;
 
         final int widthPixels = getResources().getDisplayMetrics().widthPixels;
-        mScroller.startScroll(mDecorOffsetX, 0, -mDecorOffsetX, 0, SCROLL_DURATION);
+        mScroller.startScroll(mDecorOffsetX, 0, -mDecorOffsetX, 0,
+                animate ? SCROLL_DURATION : 0);
 
         mScrollerHandler.postDelayed(new Runnable() {
             @Override
