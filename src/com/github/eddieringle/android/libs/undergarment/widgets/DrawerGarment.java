@@ -45,6 +45,7 @@ import android.widget.ListView;
 import android.widget.Scroller;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * DrawerGarment <p/> An implementation of the slide-out navigation pattern.
@@ -72,6 +73,10 @@ public class DrawerGarment extends FrameLayout {
     private int mDecorContentBackgroundColor = Color.WHITE;
 
     private int mDecorOffsetX = 0;
+
+    private int mDrawerMaxWidth = WRAP_CONTENT;
+
+    private int mDrawerWidth;
 
     private int mGestureStartX;
 
@@ -127,6 +132,9 @@ public class DrawerGarment extends FrameLayout {
     }
 
     public void reconfigureViewHierarchy() {
+        final DisplayMetrics dm = getResources().getDisplayMetrics();
+        final int widthPixels = dm.widthPixels;
+
         if (mDecorView == null) {
             return;
         }
@@ -160,13 +168,16 @@ public class DrawerGarment extends FrameLayout {
                     "Slide target must be one of SLIDE_TARGET_CONTENT or SLIDE_TARGET_WINDOW.");
         }
         ((ViewGroup) mDecorContent.getParent()).removeView(mDecorContent);
-        addView(mDrawerContent);
+        addView(mDrawerContent, new LayoutParams(mDrawerMaxWidth, MATCH_PARENT));
         addView(mDecorContent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
         mDecorContentParent.addView(this);
         mAdded = true;
 
         /* Set background color of the content view (it shouldn't be transparent) */
         mDecorContent.setBackgroundColor(mDecorContentBackgroundColor);
+
+        /* Reset shadow bounds */
+        mShadowDrawable.setBounds(-mTouchTargetWidth / 6, 0, 0, dm.heightPixels);
 
         /*
          * Set an empty onClickListener on the Decor content parent to prevent any touch events
@@ -188,7 +199,6 @@ public class DrawerGarment extends FrameLayout {
                 TOUCH_TARGET_WIDTH_DIP, dm));
 
         mShadowDrawable = getResources().getDrawable(R.drawable.decor_shadow);
-        mShadowDrawable.setBounds(-mTouchTargetWidth / 6, 0, 0, dm.heightPixels);
 
         mScrollerHandler = new Handler();
         mScroller = new Scroller(activity, new SmoothInterpolator());
@@ -209,8 +219,6 @@ public class DrawerGarment extends FrameLayout {
          * this DrawerGarment.
          */
         reconfigureViewHierarchy();
-
-        mDrawerContent.setPadding(0, 0, mTouchTargetWidth, 0);
 
         /*
          * This currently causes lock-ups on 10" tablets (e.g., Xoom & Transformer),
@@ -234,6 +242,12 @@ public class DrawerGarment extends FrameLayout {
         }
         mDecorContent.layout(mDecorContent.getLeft(), mDecorContent.getTop(),
                 mDecorContent.getLeft() + right, bottom);
+
+        mDrawerWidth = mDrawerContent.getMeasuredWidth();
+        if (mDrawerWidth > right - mTouchTargetWidth) {
+            mDrawerContent.setPadding(0, 0, mTouchTargetWidth, 0);
+            mDrawerWidth -= mTouchTargetWidth;
+        }
     }
 
     @Override
@@ -273,7 +287,7 @@ public class DrawerGarment extends FrameLayout {
                     mGestureStarted = true;
                 }
 
-                if (mGestureStartX > widthPixels - mTouchTargetWidth && mDrawerOpened) {
+                if (mGestureStartX > mDrawerWidth && mDrawerOpened) {
                     mGestureStarted = true;
                 }
 
@@ -317,7 +331,7 @@ public class DrawerGarment extends FrameLayout {
                 /*
                 * If we just tapped the right edge with the drawer open, close the drawer.
                 */
-                if (mGestureStartX > widthPixels - mTouchTargetWidth && mDrawerOpened) {
+                if (mGestureStartX > mDrawerWidth && mDrawerOpened) {
                     closeDrawer();
                 }
 
@@ -358,12 +372,12 @@ public class DrawerGarment extends FrameLayout {
             case MotionEvent.ACTION_MOVE:
                 mDrawerMoving = true;
 
-                if (mDecorOffsetX + deltaX > widthPixels - mTouchTargetWidth) {
-                    if (mDecorOffsetX != widthPixels - mTouchTargetWidth) {
+                if (mDecorOffsetX + deltaX > mDrawerWidth) {
+                    if (mDecorOffsetX != mDrawerWidth) {
                         mDrawerOpened = true;
                         mDecorContent.offsetLeftAndRight(
-                                widthPixels - mTouchTargetWidth - mDecorOffsetX);
-                        mDecorOffsetX = widthPixels - mTouchTargetWidth;
+                                mDrawerWidth - mDecorOffsetX);
+                        mDecorOffsetX = mDrawerWidth;
                         invalidate();
                     }
                 } else if (mDecorOffsetX + deltaX < 0) {
@@ -446,6 +460,33 @@ public class DrawerGarment extends FrameLayout {
         return mDecorContentBackgroundColor;
     }
 
+    /**
+     * Sets the minimum width in pixels the content area will be when the drawer is open.
+     *
+     * @param width
+     */
+    public void setTouchTargetWidth(final int width) {
+        mTouchTargetWidth = width;
+    }
+
+    public int getTouchTargetWidth() {
+        return mTouchTargetWidth;
+    }
+
+    /**
+     * Sets the maximum width in pixels the drawer will open to.
+     * Default is WRAP_CONTENT. Can also be MATCH_PARENT or another value in pixels.
+     *
+     * @param maxWidth
+     */
+    public void setDrawerMaxWidth(final int maxWidth) {
+        mDrawerMaxWidth = maxWidth;
+    }
+
+    public int getDrawerMaxWidth() {
+        return mDrawerMaxWidth;
+    }
+
     public void setDrawerEnabled(final boolean enabled) {
         mDrawerEnabled = enabled;
     }
@@ -474,9 +515,15 @@ public class DrawerGarment extends FrameLayout {
         mDrawerMoving = true;
 
         final int widthPixels = getResources().getDisplayMetrics().widthPixels;
-        mScroller
-                .startScroll(mDecorOffsetX, 0, (widthPixels - mTouchTargetWidth) - mDecorOffsetX, 0,
-                        animate ? SCROLL_DURATION : 0);
+        if (mDrawerWidth > widthPixels - mTouchTargetWidth) {
+            mScroller.startScroll(mDecorOffsetX, 0,
+                    (widthPixels - mTouchTargetWidth) - mDecorOffsetX,
+                    0, animate ? SCROLL_DURATION : 0);
+        } else {
+            mScroller.startScroll(mDecorOffsetX, 0,
+                    mDrawerWidth - mDecorOffsetX,
+                    0, animate ? SCROLL_DURATION : 0);
+        }
 
         mScrollerHandler.postDelayed(new Runnable() {
             @Override
