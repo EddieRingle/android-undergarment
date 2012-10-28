@@ -69,6 +69,8 @@ public class DrawerGarment extends FrameLayout {
 
     private boolean mGestureStarted = false;
 
+    private int mDecorContentBackgroundColor = Color.WHITE;
+
     private int mDecorOffsetX = 0;
 
     private int mGestureStartX;
@@ -163,8 +165,8 @@ public class DrawerGarment extends FrameLayout {
         mDecorContentParent.addView(this);
         mAdded = true;
 
-        /* TODO: Make this a configurable attribute */
-        mDecorContent.setBackgroundColor(Color.WHITE);
+        /* Set background color of the content view (it shouldn't be transparent) */
+        mDecorContent.setBackgroundColor(mDecorContentBackgroundColor);
 
         /*
          * Set an empty onClickListener on the Decor content parent to prevent any touch events
@@ -428,6 +430,20 @@ public class DrawerGarment extends FrameLayout {
             mShadowDrawable.draw(canvas);
             canvas.restore();
         }
+    }
+
+    /**
+     * Sets the background color of the content view.
+     * Color.TRANSPARENT looks ugly and Color.WHITE is default.
+     *
+     * @param color
+     */
+    public void setDecorContentBackgroundColor(final int color) {
+        mDecorContentBackgroundColor = color;
+    }
+
+    public int getDecorContentBackgroundColor() {
+        return mDecorContentBackgroundColor;
     }
 
     public void setDrawerEnabled(final boolean enabled) {

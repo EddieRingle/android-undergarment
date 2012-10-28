@@ -48,6 +48,15 @@ to switch to the YouTube-style of only sliding over the content then you can set
 
     mDrawerGarment.setSlideTarget(DrawerGarment.SLIDE_TARGET_CONTENT);
 
+When the drawer is first attached to the view hierarchy, Undergarment sets the
+background color of the content view to Color.WHITE. The reason it is not
+transparent (or left alone) is because the drawer would otherwise show through
+to the content view, making things look messy and such. If a white background
+won't work and, for instance, red is more your style, you can change it like so:
+
+    mDrawerGarment.setDecorContentBackgroundColor(Color.RED);
+    mDrawerGarment.reconfigureViewHierarchy();
+
 To open and close the drawer, call the `openDrawer()` and `closeDrawer()` methods,
 respectively. You can also toggle the drawer state with the `toggleDrawer()` method. The user
 will also be able to control the drawer by bezel swiping from the left side of the screen to
