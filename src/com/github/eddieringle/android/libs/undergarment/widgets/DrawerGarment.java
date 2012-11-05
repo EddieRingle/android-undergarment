@@ -30,6 +30,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -168,8 +169,8 @@ public class DrawerGarment extends FrameLayout {
                     "Slide target must be one of SLIDE_TARGET_CONTENT or SLIDE_TARGET_WINDOW.");
         }
         ((ViewGroup) mDecorContent.getParent()).removeView(mDecorContent);
-        addView(mDrawerContent, new LayoutParams(mDrawerMaxWidth, MATCH_PARENT));
-        addView(mDecorContent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        addView(mDrawerContent, new ViewGroup.LayoutParams(mDrawerMaxWidth, MATCH_PARENT));
+        addView(mDecorContent, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
         mDecorContentParent.addView(this);
         mAdded = true;
 
@@ -237,11 +238,16 @@ public class DrawerGarment extends FrameLayout {
 
         if (mSlideTarget == SLIDE_TARGET_WINDOW) {
             mDrawerContent.layout(left, top + windowRect.top, right, bottom);
+            mDecorContent.layout(mDecorContent.getLeft(), mDecorContent.getTop(),
+                    mDecorContent.getLeft() + right, bottom);
         } else {
-            mDrawerContent.layout(left, mDecorContent.getTop(), right, bottom);
+            mDrawerContent.layout(left, 0, right, bottom);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                mDecorContent.layout(left, 0, right, bottom);
+            } else {
+                mDecorContent.layout(left, top, right, bottom);
+            }
         }
-        mDecorContent.layout(mDecorContent.getLeft(), mDecorContent.getTop(),
-                mDecorContent.getLeft() + right, bottom);
 
         mDrawerWidth = mDrawerContent.getMeasuredWidth();
         if (mDrawerWidth > right - mTouchTargetWidth) {
