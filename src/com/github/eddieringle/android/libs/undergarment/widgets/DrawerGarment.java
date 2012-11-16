@@ -243,9 +243,11 @@ public class DrawerGarment extends FrameLayout {
         } else {
             mDrawerContent.layout(left, 0, right, bottom);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                mDecorContent.layout(left, 0, right, bottom);
+                mDecorContent.layout(mDecorContent.getLeft(), 0,
+                        mDecorContent.getLeft() + right, bottom);
             } else {
-                mDecorContent.layout(left, top, right, bottom);
+                mDecorContent.layout(mDecorContent.getLeft(), top,
+                        mDecorContent.getLeft() + right, bottom);
             }
         }
 
