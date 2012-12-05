@@ -538,7 +538,7 @@ public class DrawerGarment extends FrameLayout {
                     0, animate ? SCROLL_DURATION : 0);
         }
 
-        mScrollerHandler.postDelayed(new Runnable() {
+        mScrollerHandler.post(new Runnable() {
             @Override
             public void run() {
                 final boolean scrolling = mScroller.computeScrollOffset();
@@ -559,10 +559,10 @@ public class DrawerGarment extends FrameLayout {
                         });
                     }
                 } else {
-                    mScrollerHandler.postDelayed(this, 16);
+                    mScrollerHandler.post(this);
                 }
             }
-        }, 16);
+        });
     }
 
     public void openDrawer() {
@@ -580,7 +580,7 @@ public class DrawerGarment extends FrameLayout {
         mScroller.startScroll(mDecorOffsetX, 0, -mDecorOffsetX, 0,
                 animate ? SCROLL_DURATION : 0);
 
-        mScrollerHandler.postDelayed(new Runnable() {
+        mScrollerHandler.post(new Runnable() {
             @Override
             public void run() {
                 final boolean scrolling = mScroller.computeScrollOffset();
@@ -602,10 +602,10 @@ public class DrawerGarment extends FrameLayout {
                         });
                     }
                 } else {
-                    mScrollerHandler.postDelayed(this, 16);
+                    mScrollerHandler.post(this);
                 }
             }
-        }, 16);
+        });
     }
 
     public void closeDrawer() {
