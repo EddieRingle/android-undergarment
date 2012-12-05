@@ -214,6 +214,8 @@ public class DrawerGarment extends FrameLayout {
         mContentTargetParent = (ViewGroup) mContentTarget.getParent();
         mDrawerContent = (ViewGroup) LayoutInflater.from(activity).inflate(drawerLayout, null);
 
+        mDrawerContent.setVisibility(INVISIBLE);
+
         /*
          * Mutilate the view hierarchy and re-appropriate the slide target,
          * be it the entire window or just android.R.id.content, under
@@ -378,6 +380,7 @@ public class DrawerGarment extends FrameLayout {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
+                mDrawerContent.setVisibility(VISIBLE);
                 mDrawerMoving = true;
 
                 if (mDecorOffsetX + deltaX > mDrawerWidth) {
@@ -520,6 +523,8 @@ public class DrawerGarment extends FrameLayout {
             return;
         }
 
+        mDrawerContent.setVisibility(VISIBLE);
+
         mDrawerMoving = true;
 
         final int widthPixels = getResources().getDisplayMetrics().widthPixels;
@@ -586,6 +591,7 @@ public class DrawerGarment extends FrameLayout {
                 if (!scrolling) {
                     mDrawerMoving = false;
                     mDrawerOpened = false;
+                    mDrawerContent.setVisibility(INVISIBLE);
                     if (mDrawerCallbacks != null) {
                         mScrollerHandler.post(new Runnable() {
                             @Override
