@@ -71,7 +71,7 @@ public class DrawerGarment extends FrameLayout {
 
     private boolean mGestureStarted = false;
 
-    private int mDecorContentBackgroundColor = Color.WHITE;
+    private int mDecorContentBackgroundColor = Color.TRANSPARENT;
 
     private int mDecorOffsetX = 0;
 
@@ -174,7 +174,7 @@ public class DrawerGarment extends FrameLayout {
         mDecorContentParent.addView(this);
         mAdded = true;
 
-        /* Set background color of the content view (it shouldn't be transparent) */
+        /* Set background color of the content view (it defaults to transparent) */
         mDecorContent.setBackgroundColor(mDecorContentBackgroundColor);
 
         /* Reset shadow bounds */
