@@ -112,6 +112,8 @@ public class DrawerGarment extends FrameLayout {
     private ViewGroup mDecorContentParent;
 
     private ViewGroup mDrawerContent;
+	
+	private Runnable mDrawOpenRunnable, mDrawCloseRunnable;
 
     private VelocityTracker mVelocityTracker;
 
@@ -518,95 +520,106 @@ public class DrawerGarment extends FrameLayout {
         toggleDrawer(true);
     }
 
-    public void openDrawer(final boolean animate) {
-        if (mDrawerOpened || mDrawerMoving) {
-            return;
-        }
+	public void openDrawer(final boolean animate) {
+		if(mDrawerMoving){
+			mScrollerHandler.removeCallbacks(mDrawCloseRunnable);
+			mScrollerHandler.removeCallbacks(mDrawOpenRunnable);
+		}
 
-        mDrawerContent.setVisibility(VISIBLE);
+		if (mDrawerOpened) {
+			return;
+		}
 
-        mDrawerMoving = true;
+		mDrawerContent.setVisibility(VISIBLE);
+		mDrawerMoving = true;
 
-        final int widthPixels = getResources().getDisplayMetrics().widthPixels;
-        if (mDrawerWidth > widthPixels - mTouchTargetWidth) {
-            mScroller.startScroll(mDecorOffsetX, 0,
-                    (widthPixels - mTouchTargetWidth) - mDecorOffsetX,
-                    0, animate ? SCROLL_DURATION : 0);
-        } else {
-            mScroller.startScroll(mDecorOffsetX, 0,
-                    mDrawerWidth - mDecorOffsetX,
-                    0, animate ? SCROLL_DURATION : 0);
-        }
+		final int widthPixels = getResources().getDisplayMetrics().widthPixels;
+		if (mDrawerWidth > widthPixels - mTouchTargetWidth) {
+			mScroller.startScroll(mDecorOffsetX, 0,
+					(widthPixels - mTouchTargetWidth) - mDecorOffsetX,
+					0, animate ? SCROLL_DURATION : 0);
+		} else {
+			mScroller.startScroll(mDecorOffsetX, 0,
+					mDrawerWidth - mDecorOffsetX,
+					0, animate ? SCROLL_DURATION : 0);
+		}
 
-        mScrollerHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                final boolean scrolling = mScroller.computeScrollOffset();
-                mDecorContent.offsetLeftAndRight(mScroller.getCurrX() - mDecorOffsetX);
-                mDecorOffsetX = mScroller.getCurrX();
-                postInvalidate();
+		mDrawOpenRunnable = new Runnable() {
+			@Override
+			public void run() {
+				final boolean scrolling = mScroller.computeScrollOffset();
+				mDecorContent.offsetLeftAndRight(mScroller.getCurrX() - mDecorOffsetX);
+				mDecorOffsetX = mScroller.getCurrX();
+				postInvalidate();
 
-                if (!scrolling) {
-                    mDrawerMoving = false;
-                    mDrawerOpened = true;
-                    if (mDrawerCallbacks != null) {
-                        mScrollerHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                enableDisableViewGroup(mDecorContent, false);
-                                mDrawerCallbacks.onDrawerOpened();
-                            }
-                        });
-                    }
-                } else {
-                    mScrollerHandler.post(this);
-                }
-            }
-        });
-    }
+				if (!scrolling) {
+					mDrawerMoving = false;
+					mDrawerOpened = true;
+					if (mDrawerCallbacks != null) {
+						mScrollerHandler.post(new Runnable() {
+							@Override
+							public void run() {
+								enableDisableViewGroup(mDecorContent, false);
+								mDrawerCallbacks.onDrawerOpened();
+							}
+						});
+					}
+				} else {
+					mScrollerHandler.post(this);
+				}
+			}
+		};
+		mScrollerHandler.post(mDrawOpenRunnable);
+	}
 
     public void openDrawer() {
         openDrawer(true);
     }
 
-    public void closeDrawer(final boolean animate) {
-        if (!mDrawerOpened || mDrawerMoving) {
-            return;
-        }
+	public void closeDrawer(final boolean animate) {
+		if(mDrawerMoving){
+			mScrollerHandler.removeCallbacks(mDrawCloseRunnable);
+			mScrollerHandler.removeCallbacks(mDrawOpenRunnable);
+		}
 
-        mDrawerMoving = true;
+		else if (!mDrawerOpened) {
+			return;
+		}
 
-        final int widthPixels = getResources().getDisplayMetrics().widthPixels;
-        mScroller.startScroll(mDecorOffsetX, 0, -mDecorOffsetX, 0,
-                animate ? SCROLL_DURATION : 0);
+		mDrawerMoving = true;
 
-        mScrollerHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                final boolean scrolling = mScroller.computeScrollOffset();
-                mDecorContent.offsetLeftAndRight(mScroller.getCurrX() - mDecorOffsetX);
-                mDecorOffsetX = mScroller.getCurrX();
-                postInvalidate();
+		final int widthPixels = getResources().getDisplayMetrics().widthPixels;
+		mScroller.startScroll(mDecorOffsetX, 0, -mDecorOffsetX, 0,
+				animate ? SCROLL_DURATION : 0);
 
-                if (!scrolling) {
-                    mDrawerMoving = false;
-                    mDrawerOpened = false;
-                    mDrawerContent.setVisibility(INVISIBLE);
-                    if (mDrawerCallbacks != null) {
-                        mScrollerHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                enableDisableViewGroup(mDecorContent, true);
-                                mDrawerCallbacks.onDrawerClosed();
-                            }
-                        });
-                    }
-                } else {
-                    mScrollerHandler.post(this);
-                }
-            }
-        });
-    }
+		mDrawCloseRunnable = new Runnable() {
+			@Override
+			public void run() {
+				final boolean scrolling = mScroller.computeScrollOffset();
+				mDecorContent.offsetLeftAndRight(mScroller.getCurrX() - mDecorOffsetX);
+				mDecorOffsetX = mScroller.getCurrX();
+				postInvalidate();
+
+				if (!scrolling) {
+					mDrawerMoving = false;
+					mDrawerOpened = false;
+					mDrawerContent.setVisibility(INVISIBLE);
+					if (mDrawerCallbacks != null) {
+						mScrollerHandler.post(new Runnable() {
+							@Override
+							public void run() {
+								enableDisableViewGroup(mDecorContent, true);
+								mDrawerCallbacks.onDrawerClosed();
+							}
+						});
+					}
+				} else {
+					mScrollerHandler.post(this);
+				}
+			}
+		};
+		mScrollerHandler.post(mDrawCloseRunnable);
+	}
 
     public void closeDrawer() {
         closeDrawer(true);
