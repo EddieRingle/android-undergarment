@@ -113,6 +113,8 @@ public class DrawerGarment extends FrameLayout {
 
     private ViewGroup mDrawerContent;
 
+    private Runnable mDrawOpenRunnable, mDrawCloseRunnable;
+
     private VelocityTracker mVelocityTracker;
 
     private IDrawerCallbacks mDrawerCallbacks;
@@ -519,12 +521,16 @@ public class DrawerGarment extends FrameLayout {
     }
 
     public void openDrawer(final boolean animate) {
-        if (mDrawerOpened || mDrawerMoving) {
+        if(mDrawerMoving){
+            mScrollerHandler.removeCallbacks(mDrawCloseRunnable);
+            mScrollerHandler.removeCallbacks(mDrawOpenRunnable);
+        }
+
+        if (mDrawerOpened) {
             return;
         }
 
         mDrawerContent.setVisibility(VISIBLE);
-
         mDrawerMoving = true;
 
         final int widthPixels = getResources().getDisplayMetrics().widthPixels;
@@ -538,7 +544,7 @@ public class DrawerGarment extends FrameLayout {
                     0, animate ? SCROLL_DURATION : 0);
         }
 
-        mScrollerHandler.post(new Runnable() {
+        mDrawOpenRunnable = new Runnable() {
             @Override
             public void run() {
                 final boolean scrolling = mScroller.computeScrollOffset();
@@ -562,7 +568,8 @@ public class DrawerGarment extends FrameLayout {
                     mScrollerHandler.post(this);
                 }
             }
-        });
+        };
+        mScrollerHandler.post(mDrawOpenRunnable);
     }
 
     public void openDrawer() {
@@ -570,7 +577,10 @@ public class DrawerGarment extends FrameLayout {
     }
 
     public void closeDrawer(final boolean animate) {
-        if (!mDrawerOpened || mDrawerMoving) {
+        if(mDrawerMoving){
+            mScrollerHandler.removeCallbacks(mDrawCloseRunnable);
+            mScrollerHandler.removeCallbacks(mDrawOpenRunnable);
+        } else if (!mDrawerOpened) {
             return;
         }
 
@@ -580,7 +590,7 @@ public class DrawerGarment extends FrameLayout {
         mScroller.startScroll(mDecorOffsetX, 0, -mDecorOffsetX, 0,
                 animate ? SCROLL_DURATION : 0);
 
-        mScrollerHandler.post(new Runnable() {
+        mDrawCloseRunnable = new Runnable() {
             @Override
             public void run() {
                 final boolean scrolling = mScroller.computeScrollOffset();
@@ -605,7 +615,8 @@ public class DrawerGarment extends FrameLayout {
                     mScrollerHandler.post(this);
                 }
             }
-        });
+        };
+        mScrollerHandler.post(mDrawCloseRunnable);
     }
 
     public void closeDrawer() {
