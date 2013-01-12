@@ -531,7 +531,7 @@ public class DrawerGarment extends FrameLayout {
 		}
 
 		mDrawerContent.setVisibility(VISIBLE);
-		setDrawerMoving(true);
+		mDrawerMoving = true;
 
 		final int widthPixels = getResources().getDisplayMetrics().widthPixels;
 		if (mDrawerWidth > widthPixels - mTouchTargetWidth) {
@@ -553,7 +553,7 @@ public class DrawerGarment extends FrameLayout {
 				postInvalidate();
 
 				if (!scrolling) {
-					setDrawerMoving(false);
+					mDrawerMoving = false;
 					mDrawerOpened = true;
 					if (mDrawerCallbacks != null) {
 						mScrollerHandler.post(new Runnable() {
@@ -586,7 +586,7 @@ public class DrawerGarment extends FrameLayout {
 			return;
 		}
 
-		setDrawerMoving(true);
+		mDrawerMoving = true;
 
 		final int widthPixels = getResources().getDisplayMetrics().widthPixels;
 		mScroller.startScroll(mDecorOffsetX, 0, -mDecorOffsetX, 0,
@@ -601,7 +601,7 @@ public class DrawerGarment extends FrameLayout {
 				postInvalidate();
 
 				if (!scrolling) {
-					setDrawerMoving(false);
+					mDrawerMoving = false;
 					mDrawerOpened = false;
 					mDrawerContent.setVisibility(INVISIBLE);
 					if (mDrawerCallbacks != null) {
