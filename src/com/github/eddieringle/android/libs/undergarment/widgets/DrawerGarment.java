@@ -494,6 +494,7 @@ public class DrawerGarment extends FrameLayout {
      */
     public void setDrawerMaxWidth(final int maxWidth) {
         mDrawerMaxWidth = maxWidth;
+        reconfigureViewHierarchy();
     }
 
     public int getDrawerMaxWidth() {
