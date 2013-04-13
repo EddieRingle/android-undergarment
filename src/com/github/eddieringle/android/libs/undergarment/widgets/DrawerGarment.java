@@ -303,6 +303,10 @@ public class DrawerGarment extends FrameLayout {
                     mGestureStarted = true;
                 }
 
+                if (mDrawerMoving && mGestureStartX > mDecorOffsetX) {
+                    return true;
+                }
+
                 /*
                 * We still want to return false here since we aren't positive we've got a gesture
                 * we want just yet.
@@ -340,17 +344,22 @@ public class DrawerGarment extends FrameLayout {
                 */
                 return overcameSlop;
             case MotionEvent.ACTION_UP:
+
+                mGestureStarted = false;
+
                 /*
                 * If we just tapped the right edge with the drawer open, close the drawer.
                 */
                 if (mGestureStartX > mDrawerWidth && mDrawerOpened) {
                     closeDrawer();
+                    mGestureStartX = mGestureCurrentX = -1;
+                    mGestureStartY = mGestureCurrentY = -1;
+                    return true;
+                } else {
+                    mGestureStartX = mGestureCurrentX = -1;
+                    mGestureStartY = mGestureCurrentY = -1;
+                    return false;
                 }
-
-                mGestureStarted = false;
-                mGestureStartX = mGestureCurrentX = -1;
-                mGestureStartY = mGestureCurrentY = -1;
-                return false;
         }
 
         return false;
@@ -559,7 +568,6 @@ public class DrawerGarment extends FrameLayout {
                         mScrollerHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                enableDisableViewGroup(mDecorContent, false);
                                 mDrawerCallbacks.onDrawerOpened();
                             }
                         });
@@ -606,7 +614,6 @@ public class DrawerGarment extends FrameLayout {
                         mScrollerHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                enableDisableViewGroup(mDecorContent, true);
                                 mDrawerCallbacks.onDrawerClosed();
                             }
                         });
@@ -649,29 +656,5 @@ public class DrawerGarment extends FrameLayout {
             reconfigureViewHierarchy();
         }
 
-    }
-
-    public static void enableDisableViewGroup(ViewGroup viewGroup, boolean enabled) {
-        int childCount = viewGroup.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View view = viewGroup.getChildAt(i);
-            if (view.isFocusable()) {
-                view.setEnabled(enabled);
-            }
-            if (view instanceof ViewGroup) {
-                enableDisableViewGroup((ViewGroup) view, enabled);
-            } else if (view instanceof ListView) {
-                if (view.isFocusable()) {
-                    view.setEnabled(enabled);
-                }
-                ListView listView = (ListView) view;
-                int listChildCount = listView.getChildCount();
-                for (int j = 0; j < listChildCount; j++) {
-                    if (view.isFocusable()) {
-                        listView.getChildAt(j).setEnabled(false);
-                    }
-                }
-            }
-        }
     }
 }
