@@ -1,6 +1,10 @@
 Undergarment
 ============
 
+NOTE: Undergarment is deprecated. Please use the official [DrawerLayout](http://developer.android.com/reference/android/support/v4/widget/DrawerLayout.html) implementation located in the v4 Support Library.
+--------
+<br>
+
 A slide-out navigation (a.k.a. "Drawer") implementation for Android applications.  
 
 The slide-out navigation pattern has been popping up in all sorts of places in the Android
