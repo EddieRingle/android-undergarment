@@ -1,7 +1,7 @@
 Undergarment
 ============
 
-NOTE: Undergarment is deprecated. Please use the official [DrawerLayout](http://developer.android.com/reference/android/support/v4/widget/DrawerLayout.html) implementation located in the v4 Support Library.
+NOTE: Undergarment is deprecated. Please use the official [DrawerLayout](http://developer.android.com/reference/android/support/v4/widget/DrawerLayout.html) Implementation located in the v4 Support Library.
 --------
 <br>
 
